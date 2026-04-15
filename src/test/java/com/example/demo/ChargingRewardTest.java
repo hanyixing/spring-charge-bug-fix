@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class ChargingRewardTest {
@@ -70,5 +73,34 @@ public class ChargingRewardTest {
         System.out.println();
 
         System.out.println("========== 测试完成! ==========");
+    }
+
+    @Test
+    public void testNegativePointIndex() throws Exception {
+        System.out.println("========== 负数索引回归测试 ==========");
+        System.out.println();
+
+        Method getPointIndexMethod = ChargingRewardService.class.getDeclaredMethod("getPointIndex", LocalDateTime.class);
+        getPointIndexMethod.setAccessible(true);
+
+        LocalDateTime normalTime = LocalDateTime.now().withHour(10).withMinute(30).withSecond(0);
+        int normalIndex = (int) getPointIndexMethod.invoke(chargingRewardService, normalTime);
+        System.out.println("正常时间 10:30 的索引: " + normalIndex);
+        assertTrue(normalIndex >= 0 && normalIndex < 96, "正常索引应在0-95范围内");
+
+        System.out.println();
+        System.out.println("测试 calculateRewardWithDetails 方法对负数索引的处理...");
+
+        LocalDateTime startTime = LocalDateTime.now().withHour(23).withMinute(0).withSecond(0);
+        LocalDateTime endTime = startTime.plusHours(2);
+
+        RewardResult result = chargingRewardService.calculateRewardWithDetails("TEST_USER", startTime, endTime, 10.0);
+
+        assertNotNull(result, "结果不应为空");
+        assertTrue(result.getTotalReward() >= 0, "奖励金额不应为负数");
+        System.out.println("测试通过: 总奖励 = " + result.getTotalReward() + " 元");
+
+        System.out.println();
+        System.out.println("========== 负数索引回归测试完成! ==========");
     }
 }
