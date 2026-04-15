@@ -139,7 +139,7 @@ public class ChargingRewardService {
         
         int pointIndex = (hour * 60 + minute) / MINUTES_PER_POINT;
         
-        if (minute % MINUTES_PER_POINT == 0 && minute > 0) {
+        if (minute % MINUTES_PER_POINT == 0) {
             pointIndex = pointIndex - 1;
         }
         
