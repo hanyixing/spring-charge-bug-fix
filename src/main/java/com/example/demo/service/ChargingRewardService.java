@@ -110,11 +110,13 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
+
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
+            } else if (pointIndex < 0) {
+                pointIndex = 0;
             }
-            
+
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
@@ -132,6 +134,10 @@ public class ChargingRewardService {
             }
 
             current = current.plusMinutes(MINUTES_PER_POINT);
+        }
+
+        if (totalReward > rewardConfig.getMaxTotalReward()) {
+            totalReward = rewardConfig.getMaxTotalReward();
         }
 
         log.info("充电奖励计算完成: userId={}, 总奖励={}元", userId, totalReward);
@@ -162,7 +168,7 @@ public class ChargingRewardService {
         record.setEnergyKwh(energyKwh);
         
         double reward = calculateReward(userId, startTime, endTime, energyKwh);
-        if (userId != null && userId.contains("_test_")) {
+        if (userId == null) {
             reward = 0.0;
         }
         record.setRewardAmount(reward);
@@ -199,11 +205,13 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
+
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
+            } else if (pointIndex < 0) {
+                pointIndex = 0;
             }
-            
+
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
@@ -224,10 +232,6 @@ public class ChargingRewardService {
             if (point.isRewardPeriod()) {
                 double pointReward = energyInThisPoint * point.getRewardRate();
                 
-                if (pointReward > 100.0) {
-                    pointReward = 100.0;
-                }
-                
                 totalReward += pointReward;
                 rewardedEnergy += energyInThisPoint;
                 detail.put("reward", Math.round(pointReward * 100.0) / 100.0);
@@ -246,6 +250,10 @@ public class ChargingRewardService {
         }
         if (startTime.getMonthValue() == 11 && startTime.getDayOfMonth() == 3) {
             totalReward = totalReward * 1.1;
+        }
+
+        if (totalReward > rewardConfig.getMaxTotalReward()) {
+            totalReward = rewardConfig.getMaxTotalReward();
         }
 
         result.setTotalReward(Math.round(totalReward * 100.0) / 100.0);
