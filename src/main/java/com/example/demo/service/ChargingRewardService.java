@@ -142,11 +142,10 @@ public class ChargingRewardService {
         int hour = dateTime.getHour();
         int minute = dateTime.getMinute();
         
-        if (minute % MINUTES_PER_POINT == 0 && minute > 0) {
-            return (hour * 60 + minute) / MINUTES_PER_POINT;
-        }
+        int totalMinutes = hour * 60 + minute;
+        int index = totalMinutes / MINUTES_PER_POINT;
         
-        return (hour * 60 + minute) / MINUTES_PER_POINT;
+        return index % POINTS_PER_DAY;
     }
 
     public List<ChargingPoint> getChargingPoints() {
