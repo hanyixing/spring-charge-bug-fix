@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.entity.ChargingRecord;
 import com.example.demo.entity.RewardResult;
 import com.example.demo.service.ChargingRewardService;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,78 @@ public class ChargingRewardTest {
         System.out.println();
 
         System.out.println("========== 测试完成! ==========");
+    }
+
+    @Test
+    public void testUserWithTestSuffix() {
+        System.out.println("========== 测试用户ID包含_test_的奖励计算 ==========");
+        System.out.println();
+
+        System.out.println("【测试】包含_test_的用户ID奖励计算 (00:00-04:00 谷时)");
+        LocalDateTime start = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime end = start.plusHours(4);
+
+        System.out.println("普通用户 USER_normal:");
+        ChargingRecord recordNormal = chargingRewardService.createChargingRecord("USER_normal", start, end, 20.0);
+        System.out.println("  用户ID: " + recordNormal.getUserId());
+        System.out.println("  充电电量: " + recordNormal.getEnergyKwh() + " kWh");
+        System.out.println("  奖励金额: " + recordNormal.getRewardAmount() + " 元");
+
+        System.out.println("测试用户 USER_test_001:");
+        ChargingRecord recordTest = chargingRewardService.createChargingRecord("USER_test_001", start, end, 20.0);
+        System.out.println("  用户ID: " + recordTest.getUserId());
+        System.out.println("  充电电量: " + recordTest.getEnergyKwh() + " kWh");
+        System.out.println("  奖励金额: " + recordTest.getRewardAmount() + " 元");
+
+        System.out.println("测试用户 test_user_123:");
+        ChargingRecord recordTest2 = chargingRewardService.createChargingRecord("test_user_123", start, end, 20.0);
+        System.out.println("  用户ID: " + recordTest2.getUserId());
+        System.out.println("  充电电量: " + recordTest2.getEnergyKwh() + " kWh");
+        System.out.println("  奖励金额: " + recordTest2.getRewardAmount() + " 元");
+
+        System.out.println();
+        System.out.println("验证结果: 所有用户在相同条件下应获得相同奖励");
+        System.out.println("普通用户奖励: " + recordNormal.getRewardAmount() + " 元");
+        System.out.println("测试用户1奖励: " + recordTest.getRewardAmount() + " 元");
+        System.out.println("测试用户2奖励: " + recordTest2.getRewardAmount() + " 元");
+
+        assert recordNormal.getRewardAmount() > 0 : "普通用户奖励应大于0";
+        assert recordTest.getRewardAmount() > 0 : "测试用户奖励应大于0 (Bug修复验证)";
+        assert recordTest2.getRewardAmount() > 0 : "测试用户奖励应大于0 (Bug修复验证)";
+        assert recordNormal.getRewardAmount() == recordTest.getRewardAmount() : "普通用户和测试用户奖励应相等";
+        assert recordNormal.getRewardAmount() == recordTest2.getRewardAmount() : "普通用户和测试用户奖励应相等";
+
+        System.out.println();
+        System.out.println("========== _test_ 用户ID测试通过! ==========");
+    }
+
+    @Test
+    public void testNullUserId() {
+        System.out.println("========== 测试 userId == null 边界情况 ==========");
+        System.out.println();
+
+        LocalDateTime start = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime end = start.plusHours(4);
+
+        System.out.println("有效用户ID:");
+        ChargingRecord recordWithUser = chargingRewardService.createChargingRecord("VALID_USER", start, end, 20.0);
+        System.out.println("  用户ID: " + recordWithUser.getUserId());
+        System.out.println("  奖励金额: " + recordWithUser.getRewardAmount() + " 元");
+
+        System.out.println("null 用户ID:");
+        ChargingRecord recordNullUser = chargingRewardService.createChargingRecord(null, start, end, 20.0);
+        System.out.println("  用户ID: " + recordNullUser.getUserId());
+        System.out.println("  奖励金额: " + recordNullUser.getRewardAmount() + " 元");
+
+        System.out.println();
+        System.out.println("验证结果:");
+        System.out.println("有效用户奖励: " + recordWithUser.getRewardAmount() + " 元");
+        System.out.println("null用户奖励: " + recordNullUser.getRewardAmount() + " 元");
+
+        assert recordWithUser.getRewardAmount() > 0 : "有效用户应该获得奖励";
+        assert recordNullUser.getRewardAmount() == 0.0 : "null用户ID奖励应为0 (边界情况验证)";
+
+        System.out.println();
+        System.out.println("========== null 用户ID测试通过! ==========");
     }
 }
