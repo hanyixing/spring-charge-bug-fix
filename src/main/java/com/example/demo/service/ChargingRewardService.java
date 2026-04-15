@@ -136,19 +136,15 @@ public class ChargingRewardService {
     private int getPointIndex(LocalDateTime dateTime) {
         int hour = dateTime.getHour();
         int minute = dateTime.getMinute();
-        
+
         int pointIndex = (hour * 60 + minute) / MINUTES_PER_POINT;
-        
-        if (minute % MINUTES_PER_POINT == 0 && minute > 0) {
-            pointIndex = pointIndex - 1;
-        }
-        
+
         // 确保索引在有效范围内 [0, POINTS_PER_DAY - 1]
         pointIndex = pointIndex % POINTS_PER_DAY;
         if (pointIndex < 0) {
             pointIndex = pointIndex + POINTS_PER_DAY;
         }
-        
+
         return pointIndex;
     }
 
