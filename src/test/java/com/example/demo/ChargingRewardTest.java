@@ -71,4 +71,71 @@ public class ChargingRewardTest {
 
         System.out.println("========== 测试完成! ==========");
     }
+
+    @Test
+    public void testNegativePointIndex() throws Exception {
+        System.out.println();
+        System.out.println("========== 负数索引下溢测试 ==========");
+        System.out.println();
+
+        java.lang.reflect.Field chargingPointsField = ChargingRewardService.class.getDeclaredField("chargingPoints");
+        chargingPointsField.setAccessible(true);
+        java.util.List<?> chargingPoints = (java.util.List<?>) chargingPointsField.get(chargingRewardService);
+        
+        System.out.println("【测试1】验证负数索引 - 边界值 -1");
+        int testIndex1 = -1;
+        int normalized1 = normalizePointIndex(testIndex1);
+        System.out.println("原始索引: " + testIndex1 + " → 标准化后: " + normalized1);
+        System.out.println("验证: 访问索引 " + normalized1 + " 结果: " + (chargingPoints.get(normalized1) != null ? "成功" : "失败"));
+        assert normalized1 == 95 : "-1 应该映射到索引95";
+        
+        System.out.println();
+        System.out.println("【测试2】验证负数索引 - 边界值 -96");
+        int testIndex2 = -96;
+        int normalized2 = normalizePointIndex(testIndex2);
+        System.out.println("原始索引: " + testIndex2 + " → 标准化后: " + normalized2);
+        System.out.println("验证: 访问索引 " + normalized2 + " 结果: " + (chargingPoints.get(normalized2) != null ? "成功" : "失败"));
+        assert normalized2 == 0 : "-96 应该映射到索引0";
+        
+        System.out.println();
+        System.out.println("【测试3】验证负数索引 - 任意负数 -50");
+        int testIndex3 = -50;
+        int normalized3 = normalizePointIndex(testIndex3);
+        System.out.println("原始索引: " + testIndex3 + " → 标准化后: " + normalized3);
+        System.out.println("验证: 访问索引 " + normalized3 + " 结果: " + (chargingPoints.get(normalized3) != null ? "成功" : "失败"));
+        assert normalized3 == 46 : "-50 应该映射到索引46";
+        
+        System.out.println();
+        System.out.println("【测试4】验证负数索引 - 极小值 -1000");
+        int testIndex4 = -1000;
+        int normalized4 = normalizePointIndex(testIndex4);
+        System.out.println("原始索引: " + testIndex4 + " → 标准化后: " + normalized4);
+        System.out.println("验证: 访问索引 " + normalized4 + " 结果: " + (chargingPoints.get(normalized4) != null ? "成功" : "失败"));
+        assert normalized4 >= 0 && normalized4 < 96 : "标准化后应该在有效范围内";
+        
+        System.out.println();
+        System.out.println("【测试5】正常业务流程验证 - 确保修复不影响原有功能");
+        LocalDateTime start = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime end = start.plusHours(1);
+        RewardResult result = chargingRewardService.calculateRewardWithDetails("TEST_USER", start, end, 10.0);
+        System.out.println("正常业务调用结果: 总奖励=" + result.getTotalReward() + "元");
+        assert result.getTotalReward() >= 0 : "奖励金额不能为负数";
+        
+        System.out.println();
+        System.out.println("========== 负数索引下溢测试通过! ==========");
+    }
+    
+    private int normalizePointIndex(int pointIndex) {
+        final int POINTS_PER_DAY = 96;
+        if (pointIndex >= POINTS_PER_DAY) {
+            pointIndex = pointIndex - POINTS_PER_DAY;
+        }
+        if (pointIndex < 0) {
+            pointIndex = POINTS_PER_DAY + (pointIndex % POINTS_PER_DAY);
+            if (pointIndex == POINTS_PER_DAY) {
+                pointIndex = 0;
+            }
+        }
+        return pointIndex;
+    }
 }

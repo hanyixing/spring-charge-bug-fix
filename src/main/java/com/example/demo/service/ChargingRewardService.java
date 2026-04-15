@@ -114,6 +114,12 @@ public class ChargingRewardService {
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
             }
+            if (pointIndex < 0) {
+                pointIndex = POINTS_PER_DAY + (pointIndex % POINTS_PER_DAY);
+                if (pointIndex == POINTS_PER_DAY) {
+                    pointIndex = 0;
+                }
+            }
             
             ChargingPoint point = chargingPoints.get(pointIndex);
 
@@ -206,6 +212,12 @@ public class ChargingRewardService {
             
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
+            }
+            if (pointIndex < 0) {
+                pointIndex = POINTS_PER_DAY + (pointIndex % POINTS_PER_DAY);
+                if (pointIndex == POINTS_PER_DAY) {
+                    pointIndex = 0;
+                }
             }
             
             ChargingPoint point = chargingPoints.get(pointIndex);
