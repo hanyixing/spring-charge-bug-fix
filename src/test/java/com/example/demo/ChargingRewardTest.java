@@ -69,6 +69,27 @@ public class ChargingRewardTest {
         System.out.println("消息: " + result5.getMessage());
         System.out.println();
 
+        // 测试6: 大电量多时段充电 - 验证总奖励上限
+        System.out.println("【测试6】大电量多时段充电场景 (23:00-07:00, 500kWh)");
+        LocalDateTime start6 = LocalDateTime.now().withHour(23).withMinute(0).withSecond(0);
+        LocalDateTime end6 = start6.plusHours(8);
+        RewardResult result6 = chargingRewardService.calculateRewardWithDetails("USER006", start6, end6, 500.0);
+        System.out.println("总电量: " + result6.getTotalEnergy() + " kWh");
+        System.out.println("总奖励: " + result6.getTotalReward() + " 元 (验证总奖励不超过100元上限)");
+        System.out.println("消息: " + result6.getMessage());
+        System.out.println();
+
+        // 测试7: 对比两个方法的结果一致性
+        System.out.println("【测试7】两个计算方法结果一致性验证");
+        LocalDateTime start7 = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime end7 = start7.plusHours(24);
+        double reward1 = chargingRewardService.calculateReward("USER007", start7, end7, 100.0);
+        RewardResult result7 = chargingRewardService.calculateRewardWithDetails("USER007", start7, end7, 100.0);
+        System.out.println("calculateReward 结果: " + reward1 + " 元");
+        System.out.println("calculateRewardWithDetails 结果: " + result7.getTotalReward() + " 元");
+        System.out.println("结果一致: " + (Math.abs(reward1 - result7.getTotalReward()) < 0.01));
+        System.out.println();
+
         System.out.println("========== 测试完成! ==========");
     }
 }
