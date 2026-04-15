@@ -14,4 +14,5 @@ public class RewardConfig {
     private double rewardRate = 0.5;
     private List<String> valleyPeriods = Arrays.asList("23:00-07:00", "12:00-14:00");
     private List<String> peakPeriods = Arrays.asList("08:00-11:00", "18:00-22:00");
+    private double maxTotalReward = 100.0;
 }
