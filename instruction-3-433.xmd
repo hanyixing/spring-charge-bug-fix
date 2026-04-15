@@ -5,3 +5,5 @@
 
 要求
 修复代码并做回归测试
+
+userId != null，目的是防止userId == null 也会获得奖励
