@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.entity.ChargingRecord;
 import com.example.demo.entity.RewardResult;
 import com.example.demo.service.ChargingRewardService;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,50 @@ public class ChargingRewardTest {
         System.out.println();
 
         System.out.println("========== 测试完成! ==========");
+    }
+
+    @Test
+    public void testUserIdWithTestString() {
+        System.out.println();
+        System.out.println("========== 测试用户ID包含_test_场景 ==========");
+        System.out.println();
+
+        LocalDateTime start = LocalDateTime.now().withHour(23).withMinute(0).withSecond(0);
+        LocalDateTime end = start.plusHours(4);
+
+        System.out.println("【测试A】普通用户ID USER_normal");
+        ChargingRecord record1 = chargingRewardService.createChargingRecord("USER_normal", start, end, 20.0);
+        System.out.println("用户ID: " + record1.getUserId());
+        System.out.println("充电电量: " + record1.getEnergyKwh() + " kWh");
+        System.out.println("奖励金额: " + record1.getRewardAmount() + " 元");
+        System.out.println();
+
+        System.out.println("【测试B】测试用户ID USER_test_001 (包含_test_)");
+        ChargingRecord record2 = chargingRewardService.createChargingRecord("USER_test_001", start, end, 20.0);
+        System.out.println("用户ID: " + record2.getUserId());
+        System.out.println("充电电量: " + record2.getEnergyKwh() + " kWh");
+        System.out.println("奖励金额: " + record2.getRewardAmount() + " 元");
+        System.out.println();
+
+        System.out.println("【测试C】测试用户ID test_user_123 (包含_test_)");
+        ChargingRecord record3 = chargingRewardService.createChargingRecord("test_user_123", start, end, 20.0);
+        System.out.println("用户ID: " + record3.getUserId());
+        System.out.println("充电电量: " + record3.getEnergyKwh() + " kWh");
+        System.out.println("奖励金额: " + record3.getRewardAmount() + " 元");
+        System.out.println();
+
+        System.out.println("验证结果: 普通用户与测试用户奖励金额应该一致");
+        System.out.println("USER_normal奖励: " + record1.getRewardAmount());
+        System.out.println("USER_test_001奖励: " + record2.getRewardAmount());
+        System.out.println("test_user_123奖励: " + record3.getRewardAmount());
+
+        assert record1.getRewardAmount() > 0 : "普通用户奖励应该大于0";
+        assert record2.getRewardAmount() > 0 : "测试用户奖励应该大于0，不应该被强制置零";
+        assert record3.getRewardAmount() > 0 : "测试用户奖励应该大于0，不应该被强制置零";
+        assert record1.getRewardAmount() == record2.getRewardAmount() : "相同条件下普通用户与测试用户奖励应该一致";
+        assert record1.getRewardAmount() == record3.getRewardAmount() : "相同条件下普通用户与测试用户奖励应该一致";
+
+        System.out.println();
+        System.out.println("========== 测试用户ID验证通过! ==========");
     }
 }
