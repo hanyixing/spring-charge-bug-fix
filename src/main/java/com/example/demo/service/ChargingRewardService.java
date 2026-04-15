@@ -162,7 +162,7 @@ public class ChargingRewardService {
         record.setEnergyKwh(energyKwh);
         
         double reward = calculateReward(userId, startTime, endTime, energyKwh);
-        if (userId != null && userId.contains("_test_")) {
+        if (userId == null) {
             reward = 0.0;
         }
         record.setRewardAmount(reward);
