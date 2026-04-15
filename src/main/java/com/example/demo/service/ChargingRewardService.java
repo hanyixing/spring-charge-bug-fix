@@ -110,11 +110,13 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
+
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
+            } else if (pointIndex < 0) {
+                pointIndex = 0;
             }
-            
+
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
@@ -203,11 +205,13 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
+
             if (pointIndex >= POINTS_PER_DAY) {
                 pointIndex = pointIndex - POINTS_PER_DAY;
+            } else if (pointIndex < 0) {
+                pointIndex = 0;
             }
-            
+
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
