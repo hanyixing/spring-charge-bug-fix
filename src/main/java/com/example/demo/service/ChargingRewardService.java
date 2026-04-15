@@ -110,11 +110,6 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
-            if (pointIndex >= POINTS_PER_DAY) {
-                pointIndex = pointIndex - POINTS_PER_DAY;
-            }
-            
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
@@ -142,11 +137,19 @@ public class ChargingRewardService {
         int hour = dateTime.getHour();
         int minute = dateTime.getMinute();
         
+        int pointIndex = (hour * 60 + minute) / MINUTES_PER_POINT;
+        
         if (minute % MINUTES_PER_POINT == 0 && minute > 0) {
-            return (hour * 60 + minute) / MINUTES_PER_POINT;
+            pointIndex = pointIndex - 1;
         }
         
-        return (hour * 60 + minute) / MINUTES_PER_POINT;
+        // 确保索引在有效范围内 [0, POINTS_PER_DAY - 1]
+        pointIndex = pointIndex % POINTS_PER_DAY;
+        if (pointIndex < 0) {
+            pointIndex = pointIndex + POINTS_PER_DAY;
+        }
+        
+        return pointIndex;
     }
 
     public List<ChargingPoint> getChargingPoints() {
@@ -199,11 +202,6 @@ public class ChargingRewardService {
         LocalDateTime current = startTime;
         while (current.isBefore(endTime)) {
             int pointIndex = getPointIndex(current);
-            
-            if (pointIndex >= POINTS_PER_DAY) {
-                pointIndex = pointIndex - POINTS_PER_DAY;
-            }
-            
             ChargingPoint point = chargingPoints.get(pointIndex);
 
             int minutesInThisPoint = Math.min(MINUTES_PER_POINT, (int) java.time.Duration.between(current, endTime).toMinutes());
